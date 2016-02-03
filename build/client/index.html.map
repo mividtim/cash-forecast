@@ -1,0 +1,1 @@
+{"version":3,"names":[],"mappings":"","sources":["client/index.jade"],"sourcesContent":["doctype html\nhtml(lang-\"en\")\n  head\n    meta(charset=\"utf-8\")\n    title Cash Forecast\n  body\n    script(src=\"https://cdnjs.cloudflare.com/ajax/libs/redux/3.0.4/redux.js\")\n"],"file":"client/index.html","sourceRoot":"/source/"}

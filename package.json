@@ -1,0 +1,40 @@
+{
+  "author": "Your Name",
+  "name": "package-name",
+  "description": "Package description",
+  "version": "0.0.1",
+  "homepage": "",
+  "npm": true,
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": "^5.4.0"
+  },
+  "scripts": {
+    "start": "gulp start",
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "browserify": "^13.0.0",
+    "jquery": "^2.2.0",
+    "lodash": "^4.2.1",
+    "redux": "^3.2.1"
+  },
+  "devDependencies": {
+    "coffeeify": "^2.0.1",
+    "del": "^2.2.0",
+    "fs-extra": "^0.26.5",
+    "gulp": "git+https://git@github.com/gulpjs/gulp.git#4.0",
+    "gulp-coffee": "^2.3.1",
+    "gulp-jade": "^1.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-start": "^1.0.1",
+    "gulp-stylus": "^2.3.0",
+    "javascript-brunch": "^1.8.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
+  }
+}
