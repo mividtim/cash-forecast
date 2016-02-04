@@ -21,7 +21,8 @@
     "browserify": "^13.0.0",
     "jquery": "^2.2.0",
     "lodash": "^4.2.1",
-    "redux": "^3.2.1"
+    "redux": "^3.2.1",
+    "riot": "^2.3.15"
   },
   "devDependencies": {
     "coffeeify": "^2.0.1",
@@ -35,6 +36,7 @@
     "gulp-stylus": "^2.3.0",
     "javascript-brunch": "^1.8.0",
     "livereload": "^0.4.1",
+    "riotify": "^0.1.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"

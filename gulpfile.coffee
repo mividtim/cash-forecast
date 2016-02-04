@@ -9,6 +9,7 @@ install = require "gulp-start"
 jade = require "gulp-jade"
 livereload = require "livereload"
 process = require "process"
+riotify = require "riotify"
 source = require "vinyl-source-stream"
 sourcemaps = require "gulp-sourcemaps"
 spawn = require("child_process").spawn
@@ -49,8 +50,12 @@ buildStatic = ->
     .pipe gulp.dest paths.build
 buildScripts = (watch = no) ->
   bundler = browserify browserifyOpts
-  if watch then bundler = watchify bundler
   bundler.transform coffeeify
+  bundler.transform riotify,
+    template: "jade",
+    type: "coffeescript",
+    style: "stylus"
+  if watch then bundler = watchify bundler
   rebundle = ->
     bundler.bundle()
       .on "error", util.log.bind util, "Browserify Error"
@@ -81,6 +86,7 @@ watchScripts = -> buildScripts yes
 watchOthers = ->
   gulp.watch paths.styles, buildStyles
   gulp.watch paths.templates, buildTemplates
+  gulp.watch paths.static, buildStatic
 watch = gulp.parallel watchScripts, watchOthers
 db = -> #run "mongodb", ["--dbpath", "./data"]
 app = -> run "python", ["-m", "SimpleHTTPServer"], "build/client"

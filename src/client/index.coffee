@@ -1,14 +1,30 @@
 Redux = require "Redux"
-counter = (state = 0, action) ->
+_ = require "lodash"
+riot = require "riot"
+counter = require "./counter.tag"
+jquery = require "jquery"
+
+initialState = {count: 0}
+
+bind = (store) ->
+  ($el, event, action) ->
+    $el.bind event, -> store.dispatch type: action
+
+appState = (state = initialState, action) ->
   switch action.type
-    when "INCREMENT" then state + 1
-    when "DECREMENT" then state - 1
+    when "INITIALIZE" then _.assign {}, state,
+      bind: bind(store)
+      $: jquery
+    when "INCREMENT" then _.assign {}, state, count: state.count + 1
+    when "DECREMENT" then _.assign {}, state, count: state.count - 1
     else state
-store = Redux.createStore counter
+
+store = Redux.createStore appState
+
+store.dispatch type: "INITIALIZE"
+
 render = ->
-  document.getElementsByClassName("content")[0]
-    .innerText = store.getState()
+  riot.mount counter, store.getState()
+
 store.subscribe render
 render()
-document.addEventListener "click", ->
-  store.dispatch type: "INCREMENT"
