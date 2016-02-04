@@ -4,6 +4,11 @@ counter = (state = 0, action) ->
     when "INCREMENT" then state + 1
     when "DECREMENT" then state - 1
     else state
-store = createStore counter
-console.log store.getState()
-
+store = Redux.createStore counter
+render = ->
+  document.getElementsByClassName("content")[0]
+    .innerText = store.getState()
+store.subscribe render
+render()
+document.addEventListener "click", ->
+  store.dispatch type: "INCREMENT"

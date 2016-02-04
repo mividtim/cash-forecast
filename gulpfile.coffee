@@ -3,43 +3,42 @@ browserify = require "browserify"
 buffer = require "vinyl-buffer"
 coffeeify = require "coffeeify"
 del = require "del"
-process = require "process"
-spawn = require("child_process").spawn
 fs =  require "fs-extra"
 gulp = require "gulp"
 install = require "gulp-start"
 jade = require "gulp-jade"
+livereload = require "livereload"
+process = require "process"
 source = require "vinyl-source-stream"
 sourcemaps = require "gulp-sourcemaps"
+spawn = require("child_process").spawn
 stylus = require "gulp-stylus"
 util = require "gulp-util"
 watchify = require "watchify"
 
-run = (command, args) ->
-  runningCommand = spawn command, args
-  runningCommand.stdout.on "data", (data) ->
-    process.stdout.write "#{command}: #{data}"
-  runningCommand.stderr.on "data", (data) ->
-    process.stderr.write "#{command}: #{data}"
-  runningCommand.on "exit", (code) ->
-    process.stdout.write "#{command} exited with code #{code}"
-
 paths =
   clientScripts: "./src/client/index.coffee"
   serviceScripts: "./src/service/app.coffee"
-  styles: "./src/**/*.stylus"
+  styles: "./src/**/*.styl"
   templates: "./src/**/*.jade"
   static: "./static/**/*"
   build: "./build"
   clientBuild: "./build/client"
   serviceBuild: "./build/service"
 
-customOpts =
-  entries: paths.clientScripts
-  debug: true
-opts = assign {}, watchify.args, customOpts
-b = watchify browserify opts
-b.transform coffeeify
+browserifyOpts =
+  entries: paths.clientScripts,
+  debug: yes
+browserifyOpts = assign {}, watchify.args, browserifyOpts
+
+run = (command, args, cwd = ".") ->
+  runningCommand = spawn command, args, cwd: cwd
+  runningCommand.stdout.on "data", (data) ->
+    process.stdout.write "#{command}: #{data}"
+  runningCommand.stderr.on "data", (data) ->
+    process.stderr.write "#{command}: #{data}"
+  runningCommand.on "exit", (code) ->
+    process.stdout.write "#{command} exited with code #{code}"
 
 install = ->
   gulp.src "package.json"
@@ -48,14 +47,23 @@ clean = -> del "build"
 buildStatic = ->
   gulp.src paths.static
     .pipe gulp.dest paths.build
-buildScripts = ->
-  b.bundle()
-    .on "error", util.log.bind util, "Browserify Error"
-    .pipe source "bundle.js"
-    .pipe buffer()
-    .pipe sourcemaps.init loadMaps: true
-    .pipe sourcemaps.write "./"
-    .pipe gulp.dest paths.clientBuild
+buildScripts = (watch = no) ->
+  bundler = browserify browserifyOpts
+  if watch then bundler = watchify bundler
+  bundler.transform coffeeify
+  rebundle = ->
+    bundler.bundle()
+      .on "error", util.log.bind util, "Browserify Error"
+      .pipe source "bundle.js"
+      .pipe buffer()
+      .pipe sourcemaps.init loadMaps: yes
+      .pipe sourcemaps.write "./"
+      .pipe gulp.dest paths.clientBuild
+  bundler.on "log", util.log
+  bundler.on "update", ->
+    rebundle()
+    util.log "Rebundle..."
+  rebundle()
 buildStyles = ->
   gulp.src paths.styles
     .pipe sourcemaps.init()
@@ -65,26 +73,29 @@ buildStyles = ->
 buildTemplates = ->
   gulp.src paths.templates
     .pipe sourcemaps.init()
-    .pipe jade pretty: true
+    .pipe jade pretty: yes
     .pipe sourcemaps.write "."
     .pipe gulp.dest paths.build
 build = gulp.parallel buildStatic, buildScripts, buildStyles, buildTemplates
-defaultTask = gulp.series clean, build
-watch =
-  gulp.series clean, build, ->
-    gulp.watch paths.scripts, buildScripts
-    gulp.watch paths.styles, buildStyles
-    gulp.watch paths.templates, buildTemplates
+watchScripts = -> buildScripts yes
+watchOthers = ->
+  gulp.watch paths.styles, buildStyles
+  gulp.watch paths.templates, buildTemplates
+watch = gulp.parallel watchScripts, watchOthers
 db = -> #run "mongodb", ["--dbpath", "./data"]
-app = -> run "node", ["build/service/app.js"]
+app = -> run "python", ["-m", "SimpleHTTPServer"], "build/client"
+liveReload = gulp.parallel app, ->
+  livereload.createServer().watch paths.clientBuild
 start = gulp.parallel db, app
+dev = gulp.series clean, build, gulp.parallel watch, liveReload
 
 gulp.task "install", install
-gulp.task "default", defaultTask
 gulp.task "clean", clean
 gulp.task "build", build
 gulp.task "watch", watch
 gulp.task "start", start
 gulp.task "db", db
 gulp.task "app", app
+gulp.task "live", liveReload
+gulp.task "default", dev
 

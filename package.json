@@ -1,19 +1,20 @@
 {
-  "author": "Your Name",
-  "name": "package-name",
-  "description": "Package description",
-  "version": "0.0.1",
+  "author": "Tim Garthwaite <tim@mividstudios.com>",
+  "name": "cash-forecast",
+  "description": "Cash reconciliation and income forecasting",
+  "version": "0.0.0",
   "homepage": "",
-  "npm": true,
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/mividtim/cash-forecast.git"
   },
   "engines": {
     "node": "^5.4.0"
   },
   "scripts": {
+    "build": "gulp build",
     "start": "gulp start",
+    "dev": "gulp",
     "test": "gulp test"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "gulp-start": "^1.0.1",
     "gulp-stylus": "^2.3.0",
     "javascript-brunch": "^1.8.0",
+    "livereload": "^0.4.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"
