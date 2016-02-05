@@ -12,10 +12,14 @@
     "node": "^5.4.0"
   },
   "scripts": {
-    "build": "gulp build",
-    "start": "gulp start",
-    "dev": "gulp",
-    "test": "gulp test"
+    "clean": "node_modules/gulp/bin/gulp.js clean",
+    "build": "node_modules/gulp/bin/gulp.js build",
+    "watch": "node_moudles/gulp/bin/gulp.js watch",
+    "start": "node_modules/gulp/bin/gulp.js start",
+    "db": "node_modules/gulp/bin/gulp.js db",
+    "app": "node_modules/gulp/bin/gulp.js app",
+    "live": "node_modules/gulp/bin/gulp.js live",
+    "dev": "node_modules/gulp/bin/gulp.js"
   },
   "dependencies": {
     "browserify": "^13.0.0",

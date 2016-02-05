@@ -5,7 +5,6 @@ coffeeify = require "coffeeify"
 del = require "del"
 fs =  require "fs-extra"
 gulp = require "gulp"
-install = require "gulp-start"
 jade = require "gulp-jade"
 livereload = require "livereload"
 process = require "process"
@@ -41,9 +40,6 @@ run = (command, args, cwd = ".") ->
   runningCommand.on "exit", (code) ->
     process.stdout.write "#{command} exited with code #{code}"
 
-install = ->
-  gulp.src "package.json"
-    .pipe install()
 clean = -> del "build"
 buildStatic = ->
   gulp.src paths.static
@@ -95,7 +91,6 @@ liveReload = gulp.parallel app, ->
 start = gulp.parallel db, app
 dev = gulp.series clean, build, gulp.parallel watch, liveReload
 
-gulp.task "install", install
 gulp.task "clean", clean
 gulp.task "build", build
 gulp.task "watch", watch

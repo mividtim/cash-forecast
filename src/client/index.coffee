@@ -1,30 +1,75 @@
-Redux = require "Redux"
 _ = require "lodash"
+Redux = require "Redux"
 riot = require "riot"
-counter = require "./counter.tag"
-jquery = require "jquery"
+todosTag = require "./tags/todos.tag"
 
-initialState = {count: 0}
+next_id = 0
+addTodo = (text) ->
+  type: "ADD_TODO"
+  id: next_id++
+  text: text
 
-bind = (store) ->
-  ($el, event, action) ->
-    $el.bind event, -> store.dispatch type: action
+setTodosFilter = (filter) ->
+  type: "SET_TODOS_FILTER"
+  filter: filter
 
-appState = (state = initialState, action) ->
+toggleTodo = (id) ->
+  type: "TOGGLE_TODO"
+  id: id
+
+todoReducer = (state, action) ->
   switch action.type
-    when "INITIALIZE" then _.assign {}, state,
-      bind: bind(store)
-      $: jquery
-    when "INCREMENT" then _.assign {}, state, count: state.count + 1
-    when "DECREMENT" then _.assign {}, state, count: state.count - 1
+    when "ADD_TODO"
+      id: action.id
+      text: action.text
+      completed: no
+    when "TOGGLE_TODO"
+      if state.id is action.id
+        _.assign {}, state, completed: !state.completed
+      else state
     else state
 
-store = Redux.createStore appState
+todosReducer = (state = [], action) ->
+  switch action.type
+    when "ADD_TODO" then [
+      state...
+      todoReducer undefined, action
+    ]
+    when "TOGGLE_TODO"
+      state.map (todo) -> todoReducer todo, action
+    else state
 
-store.dispatch type: "INITIALIZE"
+todosFilterReducer = (state = "SHOW_ALL", action) ->
+  switch action.type
+    when "SET_TODOS_FILTER"
+      action.filter
+    else state
 
-render = ->
-  riot.mount counter, store.getState()
+appReducer = Redux.combineReducers
+  todos: todosReducer
+  todosFilter: todosFilterReducer
 
-store.subscribe render
-render()
+ContextMixin =
+  init: ->
+    if not @store?
+      console.log "here"
+      ob = @
+      ob = ob.parent while ob.parent?
+      console.log ob
+      @store = ob.opts.store
+      @addTodo = addTodo
+      @setTodosFilter = setTodosFilter
+      @toggleTodo = toggleTodo
+
+SubscribeMixin =
+  init: ->
+    console.log "here"
+    ContextMixin.init.call @
+    @on "mount", ->
+      @unsubscribe = @store.subscribe => riot.mount @root, store: @store
+    @on "unmount", ->
+      @unsubscribe()
+
+riot.mixin "context", ContextMixin
+riot.mixin "subscribe", SubscribeMixin
+riot.mount todosTag, store: Redux.createStore appReducer
