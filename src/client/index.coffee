@@ -3,19 +3,18 @@ Redux = require "Redux"
 riot = require "riot"
 todosTag = require "./tags/todos.tag"
 
-next_id = 0
-addTodo = (text) ->
-  type: "ADD_TODO"
-  id: next_id++
-  text: text
-
-setTodosFilter = (filter) ->
-  type: "SET_TODOS_FILTER"
-  filter: filter
-
-toggleTodo = (id) ->
-  type: "TOGGLE_TODO"
-  id: id
+nextID = 0
+actions =
+  addTodo: (text) ->
+    type: "ADD_TODO"
+    id: nextID++
+    text: text
+  setTodosFilter: (filter) ->
+    type: "SET_TODOS_FILTER"
+    filter: filter
+  toggleTodo: (id) ->
+    type: "TOGGLE_TODO"
+    id: id
 
 todoReducer = (state, action) ->
   switch action.type
@@ -57,9 +56,7 @@ ContextMixin =
       ob = ob.parent while ob.parent?
       console.log ob
       @store = ob.opts.store
-      @addTodo = addTodo
-      @setTodosFilter = setTodosFilter
-      @toggleTodo = toggleTodo
+      _.assign @, actions
 
 SubscribeMixin =
   init: ->
